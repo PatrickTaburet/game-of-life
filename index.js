@@ -5,6 +5,7 @@ let resetButton;
 let speedSlider;
 let rowsSlider, colsSlider;
 let canvas;
+let rulesSelect, patternSelect;
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = window.innerHeight * 0.9; // 90% de la hauteur de l'écran
 
@@ -16,8 +17,15 @@ function setup() {
     colsSlider = document.getElementById('colsSlider');
     speedSlider = document.getElementById('speedSlider');
     resetButton = document.getElementById('resetButton');
+    rulesSelect = document.getElementById('rulesSelect');
+    patternSelect = document.getElementById('patternSelect');
 
     resetButton.onclick = resetGrid;
+    patternSelect.onchange = applyPattern;
+    rulesSelect.onchange = () => {
+        gameOfLife.rule = rulesSelect.value;
+        resetGrid();
+    };
 
     updateCanvasSize(); // <-- maintenant que le canvas existe, on peut resize
 
@@ -66,8 +74,60 @@ function updateCanvasSize() {
 }
 
 function resetGrid() {
-    gameOfLife = new GameOfLife(Number(rowsSlider.value), Number(colsSlider.value));
+    applyPattern();
+}
+
+function applyPattern() {
+    const rows = Number(rowsSlider.value);
+    const cols = Number(colsSlider.value);
+    const rule = rulesSelect.value;
+    gameOfLife = new GameOfLife(rows, cols, rule);
     gameOfLife.initializeGrid();
+
+    // Efface la grille
+    for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+            gameOfLife.grid[i][j] = 0;
+        }
+    }
+
+    switch (patternSelect.value) {
+        case 'seeds':
+            // Deux cellules vivantes côte à côte au centre
+            gameOfLife.grid[Math.floor(rows / 2)][Math.floor(cols / 2)] = 1;
+            gameOfLife.grid[Math.floor(rows / 2)][Math.floor(cols / 2) + 1] = 1;
+            break;
+        case 'block':
+            // Bloc 2x2 au centre
+            gameOfLife.grid[Math.floor(rows / 2)][Math.floor(cols / 2)] = 1;
+            gameOfLife.grid[Math.floor(rows / 2)][Math.floor(cols / 2) + 1] = 1;
+            gameOfLife.grid[Math.floor(rows / 2) + 1][Math.floor(cols / 2)] = 1;
+            gameOfLife.grid[Math.floor(rows / 2) + 1][Math.floor(cols / 2) + 1] = 1;
+            break;
+        case 'beacon':
+            // Beacon 4x4 au centre
+            let r = Math.floor(rows / 2) - 1, c = Math.floor(cols / 2) - 1;
+            gameOfLife.grid[r][c] = 1;
+            gameOfLife.grid[r][c + 1] = 1;
+            gameOfLife.grid[r + 1][c] = 1;
+            gameOfLife.grid[r + 1][c + 1] = 1;
+            gameOfLife.grid[r + 2][c + 2] = 1;
+            gameOfLife.grid[r + 2][c + 3] = 1;
+            gameOfLife.grid[r + 3][c + 2] = 1;
+            gameOfLife.grid[r + 3][c + 3] = 1;
+            break;
+        case 'glider':
+            // Glider en haut à gauche
+            gameOfLife.grid[1][2] = 1;
+            gameOfLife.grid[2][3] = 1;
+            gameOfLife.grid[3][1] = 1;
+            gameOfLife.grid[3][2] = 1;
+            gameOfLife.grid[3][3] = 1;
+            break;
+        default:
+            // Random (déjà fait par initializeGrid)
+            gameOfLife.initializeGrid();
+    }
 }
 
 

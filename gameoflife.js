@@ -1,8 +1,9 @@
 export class GameOfLife {
-    constructor(rows, cols) {
+    constructor(rows, cols, rule = "conway") {
         this.rows = rows;
         this.cols = cols;
         this.grid = [];
+        this.rule = rule;
     }
 
     initializeGrid() {
@@ -23,13 +24,24 @@ export class GameOfLife {
                 const state = this.grid[i][j];
                 const neighbors = this.countNeighbors(i, j);
 
-                if (state === 1 && (neighbors < 2 || neighbors > 3)) {
-                    newGrid[i][j] = 0;
-                } else if (state === 0 && neighbors === 3) {
-                    newGrid[i][j] = 1;
-                } else {
-                    newGrid[i][j] = state;
+                if (this.rule === "conway") {
+                    // Règle standard
+                    if (state === 1 && (neighbors < 2 || neighbors > 3)) {
+                        newGrid[i][j] = 0;
+                    } else if (state === 0 && neighbors === 3) {
+                        newGrid[i][j] = 1;
+                    } else {
+                        newGrid[i][j] = state;
+                    }
+                } else if (this.rule === "seeds") {
+                    // Seeds: une cellule morte avec 2 voisins naît, tout le reste meurt
+                    if (state === 0 && neighbors === 2) {
+                        newGrid[i][j] = 1;
+                    } else {
+                        newGrid[i][j] = 0;
+                    }
                 }
+                // Ajoute d'autres variantes ici si besoin
             }
         }
         this.grid = newGrid;
