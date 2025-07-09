@@ -1,0 +1,113 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: #181825;
+    color: #f8f8f2;
+    font-family: 'Orbitron', 'Montserrat', 'Arial', sans-serif;
+    min-height: 100vh;
+}
+
+header {
+    width: 100vw;
+    text-align: center;
+    margin-top: 0;
+    padding-top: 30px;
+    padding-bottom: 10px;
+    background: linear-gradient(90deg, #ff00cc 0%, #333399 100%);
+    box-shadow: 0 2px 16px #ff00cc44;
+}
+
+h1 {
+    font-size: 2.5rem;
+    letter-spacing: 0.1em;
+    color: #00fff7;
+    text-shadow: 0 0 8px #ff00cc, 0 0 2px #00fff7;
+    margin-bottom: 0.3em;
+}
+
+header p {
+    color: #fff;
+    font-size: 1.1rem;
+    text-shadow: 0 0 4px #00fff7;
+    margin-top: 0;
+}
+
+#main-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 40px;
+    min-height: 70vh;
+}
+
+#canvas-holder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Supprime min-width/min-height ou height */
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    border: 2px solid #00fff7;
+    box-shadow: 0 0 24px #ff00cc55;
+    background: #181825 !important;
+    /* fond foncé cyberpunk */
+}
+
+#controls {
+    position: fixed;
+    top: 20vh;
+    right: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background: rgba(24, 24, 37, 0.85);
+    border: 2px solid #00fff7;
+    border-radius: 16px;
+    padding: 32px 24px;
+    box-shadow: 0 0 24px #ff00cc55;
+    min-width: 220px;
+    max-width: 300px;
+    z-index: 100;
+}
+
+#controls label {
+    color: #ff00cc;
+    font-weight: bold;
+    margin-bottom: 6px;
+    margin-top: 18px;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 4px #00fff7;
+}
+
+#controls input[type="range"] {
+    width: 180px;
+    accent-color: #00fff7;
+    margin-bottom: 8px;
+}
+
+#controls button {
+    margin-top: 28px;
+    padding: 10px 24px;
+    background: linear-gradient(90deg, #ff00cc 0%, #00fff7 100%);
+    color: #181825;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: inherit;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 8px #ff00cc88;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#controls button:hover {
+    background: linear-gradient(90deg, #00fff7 0%, #ff00cc 100%);
+    color: #fff;
+}
