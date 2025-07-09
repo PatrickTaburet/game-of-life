@@ -9,8 +9,10 @@ let rulesSelect, patternSelect;
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = window.innerHeight * 0.9; // 90% de la hauteur de l'écran
 
+let camX = 0, camY = 0, camZ = 600;
+
 function setup() {
-    canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
+    canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL); // <-- mode 3D
     canvas.parent('canvas-holder');
 
     rowsSlider = document.getElementById('rowsSlider');
@@ -35,27 +37,19 @@ function setup() {
 }
 
 function draw() {
-    // Si la taille de la grille a changé, on la recrée et on ajuste le canvas
-    if (gameOfLife.rows !== Number(rowsSlider.value) || gameOfLife.cols !== Number(colsSlider.value)) {
-        gameOfLife = new GameOfLife(Number(rowsSlider.value), Number(colsSlider.value));
-        gameOfLife.initializeGrid();
-        updateCanvasSize();
-    }
+    background(24, 24, 37);
 
-    background(24, 24, 37); // fond foncé
+    camera(camX, camY, camZ, 0, 0, 0, 0, 1, 0);
+    orbitControl(2, 2);
 
-    frameRate(Number(speedSlider.value));
+    translate(
+        -((gameOfLife.cols - 1) * 20) / 2,
+        -((gameOfLife.rows - 1) * 20) / 2,
+        0
+    );
 
     gameOfLife.updateGrid();
-    gameOfLife.drawGrid();
-
-    // Affichage des valeurs des sliders
-    fill(0, 255, 255);
-    noStroke();
-    textSize(14);
-    text('Lignes: ' + rowsSlider.value, 20, height - 60);
-    text('Colonnes: ' + colsSlider.value, 20, height - 40);
-    text('Vitesse: ' + speedSlider.value + ' FPS', 20, height - 20);
+    gameOfLife.drawGrid3D();
 }
 
 // Nouvelle fonction pour ajuster la taille du canvas selon la grille
@@ -130,6 +124,16 @@ function applyPattern() {
     }
 }
 
+function keyPressed() {
+    const step = 40;
+    if (key === 'a') camX -= step;
+    if (key === 'd') camX += step;
+    if (key === 'w') camY -= step;
+    if (key === 's') camY += step;
+    if (key === 'q') camZ += step;
+    if (key === 'e') camZ -= step;
+}
+window.keyPressed = keyPressed;
 
 window.setup = setup;
 window.draw = draw;

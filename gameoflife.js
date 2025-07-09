@@ -70,6 +70,21 @@ export class GameOfLife {
             }
         }
     }
+
+    drawGrid3D() {
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                if (this.grid[i][j] === 1) {
+                    push();
+                    translate(j * 20, i * 20, 0);
+                    fill(0, 255, 255);
+                    stroke(255, 0, 255);
+                    box(18, 18, 18);
+                    pop();
+                }
+            }
+        }
+    }
 }
 
 if (typeof module !== 'undefined') {
