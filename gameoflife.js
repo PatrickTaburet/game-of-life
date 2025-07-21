@@ -87,6 +87,85 @@ export class GameOfLife {
     }
 }
 
+export class GameOfLife3D {
+    constructor(size, density = 0.15) {
+        this.size = size;
+        this.density = density;
+        this.grid = [];
+        this.initializeGrid();
+    }
+
+    initializeGrid() {
+        this.grid = [];
+        for (let i = 0; i < this.size; i++) {
+            this.grid[i] = [];
+            for (let j = 0; j < this.size; j++) {
+                this.grid[i][j] = [];
+                for (let k = 0; k < this.size; k++) {
+                    this.grid[i][j][k] = Math.random() < this.density ? 1 : 0;
+                }
+            }
+        }
+    }
+
+    countNeighbors(x, y, z) {
+        let count = 0;
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dz = -1; dz <= 1; dz++) {
+                    if (dx === 0 && dy === 0 && dz === 0) continue;
+                    const nx = (x + dx + this.size) % this.size;
+                    const ny = (y + dy + this.size) % this.size;
+                    const nz = (z + dz + this.size) % this.size;
+                    count += this.grid[nx][ny][nz];
+                }
+            }
+        }
+        return count;
+    }
+
+    updateGrid() {
+        let newGrid = [];
+        for (let i = 0; i < this.size; i++) {
+            newGrid[i] = [];
+            for (let j = 0; j < this.size; j++) {
+                newGrid[i][j] = [];
+                for (let k = 0; k < this.size; k++) {
+                    const state = this.grid[i][j][k];
+                    const neighbors = this.countNeighbors(i, j, k);
+
+                    // Règle 3D classique : survit avec 5 ou 6 voisins, naît avec 5 voisins
+                    if (state === 1 && (neighbors >= 5 && neighbors <= 7)) {
+                        newGrid[i][j][k] = 1;
+                    } else if (state === 0 && neighbors === 6) { // naissance seulement si 6 voisins
+                        newGrid[i][j][k] = 1;
+                    } else {
+                        newGrid[i][j][k] = 0;
+                    }
+                }
+            }
+        }
+        this.grid = newGrid;
+    }
+
+    drawGrid3D(cellSize = 20) {
+        for (let z = 0; z < this.size; z++) {
+            for (let y = 0; y < this.size; y++) {
+                for (let x = 0; x < this.size; x++) {
+                    if (this.grid[z][y][x] === 1) {
+                        push();
+                        translate(x * cellSize, y * cellSize, z * cellSize);
+                        fill(0, 255, 255, 180);
+                        stroke(255, 0, 255);
+                        box(cellSize * 0.9);
+                        pop();
+                    }
+                }
+            }
+        }
+    }
+}
+
 if (typeof module !== 'undefined') {
-    module.exports = { GameOfLife };
+    module.exports = { GameOfLife, GameOfLife3D };
 }

@@ -21,10 +21,6 @@
     <div id="main-container">
         <div id="canvas-holder"></div>
         <div id="controls">
-            <label for="rowsSlider">Rows</label>
-            <input type="range" id="rowsSlider" min="10" max="100" value="50">
-            <label for="colsSlider">Columns</label>
-            <input type="range" id="colsSlider" min="10" max="100" value="50">
             <label for="speedSlider">Speed (FPS)</label>
             <input type="range" id="speedSlider" min="1" max="30" value="10">
             <label for="rulesSelect">Rules</label>
@@ -41,9 +37,13 @@
                 <option value="glider">Glider</option>
                 <!-- Ajoute d'autres patterns si tu veux -->
             </select>
+            <label for="sizeSlider">Cube Size</label>
+            <input type="range" id="sizeSlider" min="5" max="60" value="35">
             <label for="zoomSlider">Zoom</label>
-            <input type="range" id="zoomSlider" min="5" max="60" value="20">
-            <button id="resetButton">Reset Grid</button>
+            <input type="range" id="zoomSlider" min="5" max="60" value="15">
+            <label for="densitySlider">Densité initiale</label>
+            <input type="range" id="densitySlider" min="0.01" max="0.5" step="0.01" value="0.15">
+            <button id="resetGridButton">Reset Grid</button>
         </div>
     </div>
 </body>
