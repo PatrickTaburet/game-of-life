@@ -134,13 +134,35 @@ export class GameOfLife3D {
                     const state = this.grid[i][j][k];
                     const neighbors = this.countNeighbors(i, j, k);
 
-                    // Règle 3D classique : survit avec 5 ou 6 voisins, naît avec 5 voisins
-                    if (state === 1 && (neighbors >= 5 && neighbors <= 7)) {
-                        newGrid[i][j][k] = 1;
-                    } else if (state === 0 && neighbors === 6) { // naissance seulement si 6 voisins
-                        newGrid[i][j][k] = 1;
-                    } else {
-                        newGrid[i][j][k] = 0;
+                    // Récupère la règle depuis le select
+                    let rule = window.rulesSelect?.value || "classic3d";
+                    if (rule === "classic3d") {
+                        // Naissance si 6 voisins, survie si 5-7 voisins
+                        if (state === 1 && (neighbors >= 5 && neighbors <= 7)) {
+                            newGrid[i][j][k] = 1;
+                        } else if (state === 0 && neighbors === 6) {
+                            newGrid[i][j][k] = 1;
+                        } else {
+                            newGrid[i][j][k] = 0;
+                        }
+                    } else if (rule === "chaos3d") {
+                        // Naissance si 5, 6 ou 7 voisins, survie si 4-8 voisins
+                        if (state === 1 && (neighbors >= 4 && neighbors <= 8)) {
+                            newGrid[i][j][k] = 1;
+                        } else if (state === 0 && (neighbors >= 5 && neighbors <= 7)) {
+                            newGrid[i][j][k] = 1;
+                        } else {
+                            newGrid[i][j][k] = 0;
+                        }
+                    } else if (rule === "stable3d") {
+                        // Naissance si 6 voisins, survie si 6-8 voisins
+                        if (state === 1 && (neighbors >= 6 && neighbors <= 8)) {
+                            newGrid[i][j][k] = 1;
+                        } else if (state === 0 && neighbors === 6) {
+                            newGrid[i][j][k] = 1;
+                        } else {
+                            newGrid[i][j][k] = 0;
+                        }
                     }
                 }
             }

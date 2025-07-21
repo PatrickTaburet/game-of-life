@@ -5,6 +5,11 @@ let sizeSlider, zoomSlider, speedSlider, densitySlider, canvas;
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = window.innerHeight * 0.9; // 90% de la hauteur de l'écran
 
+let trailMode = false;
+let trailDuration = 40; // valeur par défaut
+let trailGrid = [];     // pour stocker les trails
+let trails = []; // Liste des trails : {x, y, z, age}
+
 function setup() {
     canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL);
     canvas.parent('canvas-holder');
@@ -46,6 +51,11 @@ function draw() {
     background(24, 24, 37);
     orbitControl(5, 3);
 
+    // Ajoute des lumières pour effet glossy/reflet
+    ambientLight(60, 60, 80);
+    directionalLight(180, 180, 255, 0.5, 1, -1);
+    pointLight(255, 255, 255, 0, 0, 300);
+
     const cellSize = Number(zoomSlider.value);
     translate(
         -((gameOfLife.size - 1) * cellSize) / 2,
@@ -54,6 +64,54 @@ function draw() {
     );
 
     gameOfLife.updateGrid();
+
+    // --- TRAIL MODE ---
+    if (trailMode) {
+        // Initialise trailGrid si vide ou taille différente
+        if (!trailGrid.length || trailGrid.length !== gameOfLife.size) {
+            trailGrid = [];
+            for (let z = 0; z < gameOfLife.size; z++) {
+                trailGrid[z] = [];
+                for (let y = 0; y < gameOfLife.size; y++) {
+                    trailGrid[z][y] = [];
+                    for (let x = 0; x < gameOfLife.size; x++) {
+                        trailGrid[z][y][x] = 0;
+                    }
+                }
+            }
+        }
+        // Met à jour trailGrid
+        for (let z = 0; z < gameOfLife.size; z++) {
+            for (let y = 0; y < gameOfLife.size; y++) {
+                for (let x = 0; x < gameOfLife.size; x++) {
+                    if (gameOfLife.grid[z][y][x] === 1) {
+                        trailGrid[z][y][x] = trailDuration;
+                    } else if (trailGrid[z][y][x] > 0) {
+                        trailGrid[z][y][x]--;
+                    }
+                }
+            }
+        }
+        // Dessine les trails
+        for (let z = 0; z < gameOfLife.size; z++) {
+            for (let y = 0; y < gameOfLife.size; y++) {
+                for (let x = 0; x < gameOfLife.size; x++) {
+                    if (trailGrid[z][y][x] > 0) {
+                        push();
+                        translate(x * cellSize, y * cellSize, z * cellSize);
+                        let alpha = map(trailGrid[z][y][x], 0, trailDuration, 0, 180);
+                        specularMaterial(255, 0, 255, alpha); // couleur trail magenta
+                        shininess(40);
+                        noStroke();
+                        box(cellSize * 0.9);
+                        pop();
+                    }
+                }
+            }
+        }
+    }
+
+    // Dessine les cubes vivants (toujours au-dessus des trails)
     gameOfLife.drawGrid3D(cellSize);
 
     // Affiche le nombre de cubes vivants
@@ -95,8 +153,12 @@ GameOfLife3D.prototype.drawGrid3D = function (cellSize = 20) {
                 if (this.grid[i][j][k] === 1) {
                     push();
                     translate(j * cellSize, i * cellSize, k * cellSize);
-                    fill(0, 255, 255);
-                    stroke(255, 0, 255);
+
+                    // Effet glossy/reflet
+                    specularMaterial(0, 180, 255, 200); // couleur brillante
+                    shininess(80); // plus la valeur est haute, plus c'est "miroir"
+                    stroke(255, 255, 255, 80); // bord doux
+
                     box(cellSize * 0.9, cellSize * 0.9, cellSize * 0.9);
                     pop();
                 }
@@ -104,4 +166,18 @@ GameOfLife3D.prototype.drawGrid3D = function (cellSize = 20) {
         }
     }
 }
+
+window.rulesSelect = document.getElementById('rulesSelect');
+rulesSelect.oninput = resetGrid;
+
+document.getElementById('trailModeButton').onclick = function () {
+    trailMode = !trailMode;
+    this.textContent = trailMode ? "Trail Mode: ON" : "Trail Mode: OFF";
+    // Réinitialise les trails si désactivé
+    if (!trailMode) trailGrid = [];
+};
+
+document.getElementById('trailSlider').oninput = function () {
+    trailDuration = Number(this.value);
+};
 
