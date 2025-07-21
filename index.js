@@ -6,13 +6,14 @@ let speedSlider;
 let rowsSlider, colsSlider;
 let canvas;
 let rulesSelect, patternSelect;
+let zoomSlider;
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = window.innerHeight * 0.9; // 90% de la hauteur de l'écran
 
 let camX = 0, camY = 0, camZ = 600;
 
 function setup() {
-    canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL); // <-- mode 3D
+    canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT, WEBGL);
     canvas.parent('canvas-holder');
 
     rowsSlider = document.getElementById('rowsSlider');
@@ -21,6 +22,21 @@ function setup() {
     resetButton = document.getElementById('resetButton');
     rulesSelect = document.getElementById('rulesSelect');
     patternSelect = document.getElementById('patternSelect');
+    zoomSlider = document.getElementById('zoomSlider');
+
+    // Ajoute le contrôle du zoom à la molette
+    canvas.elt.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        let zoom = Number(zoomSlider.value);
+        // Sensibilité du zoom
+        const step = 2;
+        if (e.deltaY < 0) {
+            zoom = Math.min(zoom + step, Number(zoomSlider.max));
+        } else {
+            zoom = Math.max(zoom - step, Number(zoomSlider.min));
+        }
+        zoomSlider.value = zoom;
+    }, { passive: false });
 
     resetButton.onclick = resetGrid;
     patternSelect.onchange = applyPattern;
@@ -29,7 +45,12 @@ function setup() {
         resetGrid();
     };
 
-    updateCanvasSize(); // <-- maintenant que le canvas existe, on peut resize
+    // Ajout : mise à jour dynamique sur changement des sliders
+    rowsSlider.oninput = resetGrid;
+    colsSlider.oninput = resetGrid;
+    speedSlider.oninput = () => frameRate(Number(speedSlider.value));
+
+    updateCanvasSize();
 
     gameOfLife = new GameOfLife(Number(rowsSlider.value), Number(colsSlider.value));
     gameOfLife.initializeGrid();
@@ -39,17 +60,18 @@ function setup() {
 function draw() {
     background(24, 24, 37);
 
-    camera(camX, camY, camZ, 0, 0, 0, 0, 1, 0);
-    orbitControl(2, 2);
+    orbitControl(5, 3); // Sensibilité augmentée
+
+    const cellSize = Number(zoomSlider.value);
 
     translate(
-        -((gameOfLife.cols - 1) * 20) / 2,
-        -((gameOfLife.rows - 1) * 20) / 2,
+        -((gameOfLife.cols - 1) * cellSize) / 2,
+        -((gameOfLife.rows - 1) * cellSize) / 2,
         0
     );
 
     gameOfLife.updateGrid();
-    gameOfLife.drawGrid3D();
+    gameOfLife.drawGrid3D(cellSize);
 }
 
 // Nouvelle fonction pour ajuster la taille du canvas selon la grille
@@ -124,17 +146,21 @@ function applyPattern() {
     }
 }
 
-function keyPressed() {
-    const step = 40;
-    if (key === 'a') camX -= step;
-    if (key === 'd') camX += step;
-    if (key === 'w') camY -= step;
-    if (key === 's') camY += step;
-    if (key === 'q') camZ += step;
-    if (key === 'e') camZ -= step;
-}
-window.keyPressed = keyPressed;
-
 window.setup = setup;
 window.draw = draw;
+
+GameOfLife.prototype.drawGrid3D = function (cellSize = 20) {
+    for (let i = 0; i < this.rows; i++) {
+        for (let j = 0; j < this.cols; j++) {
+            if (this.grid[i][j] === 1) {
+                push();
+                translate(j * cellSize, i * cellSize, 0);
+                fill(0, 255, 255);
+                stroke(255, 0, 255);
+                box(cellSize * 0.9, cellSize * 0.9, cellSize * 0.9);
+                pop();
+            }
+        }
+    }
+}
 
